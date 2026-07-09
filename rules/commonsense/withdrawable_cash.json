@@ -1,0 +1,13 @@
+{
+  "rule_id": "withdrawable_cash",
+  "patterns": ["可取", "可转", "能.*取", "能.*转"],
+  "dimension": "计算口径",
+  "implication": "withdrawable_cash",
+  "confidence": "high",
+  "reasoning": "用户在询问可取资金的判定条件而非具体金额；条件为：总资产-3×总负债>0。具体可取金额受公司细则限制。",
+  "notes": {
+    "metric": "withdrawable_cash",
+    "condition": "总资产-3×总负债>0",
+    "note": "可取资金的条件而非金额；具体可取金额受公司细则限制"
+  }
+}

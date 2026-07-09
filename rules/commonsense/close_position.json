@@ -1,0 +1,11 @@
+{
+  "rule_id": "close_position",
+  "patterns": ["平仓", "清仓", "全部卖出"],
+  "dimension": "目标动作",
+  "implication": "平仓",
+  "confidence": "high",
+  "reasoning": "卖出全部持仓并归还对应负债。",
+  "notes": {
+    "implied_meaning": "卖出全部持仓并归还对应负债"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "formula_id": "credit_available_short",
+  "name": "融券授信可用额度",
+  "expression": "融券授信可用额度 = 融券授信额度上限 − 融券负债",
+  "variables": {
+    "融券授信额度上限": "见 formula_id=credit_limit_short",
+    "融券负债": "客户当前已使用的融券负债"
+  },
+  "unit": "元",
+  "notes": null
+}

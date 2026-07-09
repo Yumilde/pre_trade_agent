@@ -1,0 +1,9 @@
+{
+  "rule_id": "sell_repay",
+  "patterns": ["卖券还款", "卖.*还.*负债", "卖出.*还款"],
+  "dimension": "目标动作",
+  "implication": "卖券还款",
+  "confidence": "high",
+  "reasoning": "卖出担保品证券，所得资金优先归还负债。",
+  "notes": {}
+}

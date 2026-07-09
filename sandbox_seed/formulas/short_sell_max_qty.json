@@ -1,0 +1,15 @@
+{
+  "formula_id": "short_sell_max_qty",
+  "name": "融券卖出最大数量",
+  "expression": "融券卖出最大数量 = min(融券授信可用额度, 保证金可用余额 / 融券保证金比例, min(锁券可用数量, 融券专户持仓可用数量)) / 委托价格",
+  "variables": {
+    "融券授信可用额度": "见 formula_id=credit_available_short",
+    "保证金可用余额": "见 formula_id=margin_available",
+    "融券保证金比例": "见 formula_id=short_margin_ratio",
+    "锁券可用数量": "客户锁定可用券源数量",
+    "融券专户持仓可用数量": "融券专户中该证券可融数量",
+    "委托价格": "本次拟下单价格（不计费用）"
+  },
+  "unit": "股",
+  "notes": "不计手续费、利息等费用。"
+}

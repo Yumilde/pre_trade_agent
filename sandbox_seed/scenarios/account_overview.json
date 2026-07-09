@@ -1,0 +1,12 @@
+{
+  "scenario": "account_overview",
+  "name": "信用账户总览",
+  "description": "核心账户指标的统一口径。",
+  "formula_ids": [
+    "total_assets",
+    "total_liabilities",
+    "maintenance_ratio",
+    "margin_available",
+    "margin_total"
+  ]
+}

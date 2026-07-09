@@ -1,0 +1,10 @@
+{
+  "scenario": "maintenance_ratio_check",
+  "name": "维持担保比例核验",
+  "description": "核验或推演维持担保比例。",
+  "formula_ids": [
+    "maintenance_ratio",
+    "total_assets",
+    "total_liabilities"
+  ]
+}

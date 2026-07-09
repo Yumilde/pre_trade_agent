@@ -1,0 +1,14 @@
+{
+  "scenario": "margin_buy_planning",
+  "name": "融资买入试算",
+  "description": "客户在信用账户使用融资买入证券的容量与上限。",
+  "formula_ids": [
+    "margin_buy_max_qty",
+    "long_margin_ratio",
+    "margin_available",
+    "credit_available_long",
+    "concentration_position",
+    "concentration_control",
+    "maintenance_ratio"
+  ]
+}

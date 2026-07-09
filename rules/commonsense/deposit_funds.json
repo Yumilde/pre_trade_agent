@@ -1,0 +1,9 @@
+{
+  "rule_id": "deposit_funds",
+  "patterns": ["入金", "存钱", "转账.*入", "银证.*转入", "转入资金"],
+  "dimension": "目标动作",
+  "implication": "入金",
+  "confidence": "high",
+  "reasoning": "银证转账存入资金，增加可用现金和保证金可用余额。",
+  "notes": {}
+}

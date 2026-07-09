@@ -1,0 +1,11 @@
+{
+  "formula_id": "concentration_position",
+  "name": "持仓集中度",
+  "expression": "持仓集中度 = 单只股票市值 / 总资产",
+  "variables": {
+    "单只股票市值": "客户该证券当前持仓市值",
+    "总资产": "见 formula_id=total_assets"
+  },
+  "unit": "比例（无量纲）",
+  "notes": null
+}

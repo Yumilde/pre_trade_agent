@@ -1,0 +1,12 @@
+{
+  "rule_id": "concentration",
+  "patterns": ["集中度"],
+  "dimension": "计算口径",
+  "implication": "concentration",
+  "confidence": "high",
+  "reasoning": "单一证券/板块持仓占总资产或净资本的比例上限。",
+  "notes": {
+    "metric": "concentration",
+    "note": "单一证券/板块持仓占总资产或净资本的比例上限"
+  }
+}

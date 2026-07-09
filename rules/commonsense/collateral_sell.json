@@ -1,0 +1,9 @@
+{
+  "rule_id": "collateral_sell",
+  "patterns": ["担保品卖出", "卖.*担保品"],
+  "dimension": "目标动作",
+  "implication": "担保品卖出",
+  "confidence": "high",
+  "reasoning": "卖出担保品证券，所得资金转为可用资金（不自动还款）。",
+  "notes": {}
+}

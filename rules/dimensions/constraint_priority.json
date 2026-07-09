@@ -1,0 +1,10 @@
+{
+  "dimension": "约束优先级",
+  "description": "用户希望优化或优先满足的目标约束。若问题在该维度命中多个互斥目标，则存在歧义。",
+  "directions": [
+    {"group": "max_buy", "label": "最大化买入市值", "keywords": ["最大化.*买", "最多.*买", "满仓", "最大金额"]},
+    {"group": "max_finance", "label": "最大化融资使用", "keywords": ["最大化.*融资", "最多.*融"]},
+    {"group": "min_margin", "label": "最小化保证金占用", "keywords": ["最小.*保证金", "最低保证"]}
+  ],
+  "special_handling": null
+}

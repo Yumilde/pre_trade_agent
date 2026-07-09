@@ -1,0 +1,10 @@
+{
+  "formula_id": "concentration_control",
+  "name": "集中度控制逻辑",
+  "expression": "若集中度组别 ∈ {A,B,C,D,E,F}：仅受持仓集中度限制；若集中度组别 = G：同时受持仓集中度与北交所板块集中度限制。",
+  "variables": {
+    "集中度组别": "由公司风控按证券属性划分"
+  },
+  "unit": "—",
+  "notes": null
+}

@@ -1,0 +1,9 @@
+{
+  "rule_id": "repay_debt",
+  "patterns": ["归还负债", "还钱", "还款", "偿还.*负债"],
+  "dimension": "目标动作",
+  "implication": "归还负债",
+  "confidence": "medium",
+  "reasoning": "'还款'可指卖券还款（出售担保品）或直接还款（用现金余额），需根据上下文判断。若用户同时提到提取资金且现金不足，则为卖券还款。",
+  "notes": {}
+}

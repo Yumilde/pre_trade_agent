@@ -1,0 +1,11 @@
+{
+  "formula_id": "margin_total",
+  "name": "保证金",
+  "expression": "保证金 = 现金 + 可充抵保证金的证券市值",
+  "variables": {
+    "现金": "信用账户现金余额",
+    "可充抵保证金的证券市值": "见 formula_id=collateral_value，不包括融资买入的持仓"
+  },
+  "unit": "元",
+  "notes": "可冲抵保证金证券不包括融资买入的持仓。"
+}

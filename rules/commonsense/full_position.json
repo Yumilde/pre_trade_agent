@@ -1,0 +1,9 @@
+{
+  "rule_id": "full_position",
+  "patterns": ["满仓"],
+  "dimension": "约束优先级",
+  "implication": "按可用现金最大化买入",
+  "confidence": "high",
+  "reasoning": "'满仓'在融资融券语境中默认为按可用现金（含融资额度）最大化买入。",
+  "notes": {}
+}

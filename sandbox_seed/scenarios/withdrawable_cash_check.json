@@ -1,0 +1,10 @@
+{
+  "scenario": "withdrawable_cash_check",
+  "name": "可取资金试算",
+  "description": "判断客户当前可取资金条件是否满足。",
+  "formula_ids": [
+    "withdrawable_cash",
+    "total_assets",
+    "total_liabilities"
+  ]
+}

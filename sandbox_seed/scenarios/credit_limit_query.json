@@ -1,0 +1,11 @@
+{
+  "scenario": "credit_limit_query",
+  "name": "授信额度查询",
+  "description": "融资/融券授信上限与可用额度。",
+  "formula_ids": [
+    "credit_limit_long",
+    "credit_limit_short",
+    "credit_available_long",
+    "credit_available_short"
+  ]
+}

@@ -1,0 +1,11 @@
+deepagents
+langgraph
+langgraph-cli[inmem]
+langchain-core
+langchain-openai
+langchain-mcp-adapters
+python-dotenv
+pulp
+daytona-sdk
+mcp
+requests

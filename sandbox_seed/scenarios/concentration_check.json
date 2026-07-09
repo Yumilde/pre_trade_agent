@@ -1,0 +1,11 @@
+{
+  "scenario": "concentration_check",
+  "name": "集中度核验",
+  "description": "核验单只股票或板块集中度是否超限。",
+  "formula_ids": [
+    "concentration_position",
+    "concentration_sector",
+    "concentration_control",
+    "total_assets"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "formula_id": "long_margin_ratio",
+  "name": "融资保证金比例",
+  "expression": "融资保证金比例 = 保证金 / 融资买入金额",
+  "variables": {
+    "保证金": "见 formula_id=margin_total",
+    "融资买入金额": "本次/单笔融资买入的委托金额"
+  },
+  "unit": "比例（无量纲）",
+  "notes": "公司对不同标的证券分别设置融资保证金比例；具体值以公司公布的标的证券名单为准。"
+}

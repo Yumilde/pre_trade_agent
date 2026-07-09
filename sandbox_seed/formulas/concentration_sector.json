@@ -1,0 +1,11 @@
+{
+  "formula_id": "concentration_sector",
+  "name": "板块集中度",
+  "expression": "板块集中度 = ∑(集中度类别为 G 类的单只股票市值) / 总资产",
+  "variables": {
+    "G 类股票市值": "客户持仓中所有集中度类别为 G 类（北交所板块）的股票市值",
+    "总资产": "见 formula_id=total_assets"
+  },
+  "unit": "比例（无量纲）",
+  "notes": "仅对 G 类品种适用。"
+}

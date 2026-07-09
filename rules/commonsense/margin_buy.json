@@ -1,0 +1,9 @@
+{
+  "rule_id": "margin_buy",
+  "patterns": ["融资买入", "加杠杆.*买", "借钱.*买", "信用买入"],
+  "dimension": "目标动作",
+  "implication": "融资买入",
+  "confidence": "high",
+  "reasoning": "需要保证金可用余额充足，受集中度、维保比例等约束。",
+  "notes": {}
+}

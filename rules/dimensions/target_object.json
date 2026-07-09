@@ -1,0 +1,10 @@
+{
+  "dimension": "作用对象",
+  "description": "动作或计算的作用标的范围。若问题在该维度命中多个互斥范围，则存在歧义。",
+  "directions": [
+    {"group": "single", "label": "单只证券", "keywords": ["股票.*代码", "单只", "这个", "该股"]},
+    {"group": "portfolio", "label": "组合/多只", "keywords": ["组合", "这些", "多个", "几支"]},
+    {"group": "all", "label": "全部持仓", "keywords": ["全部", "全仓", "所有持仓", "全部持仓"]}
+  ],
+  "special_handling": null
+}

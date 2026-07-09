@@ -1,0 +1,12 @@
+{
+  "scenario": "margin_ratio_basics",
+  "name": "保证金及保证金比例基础口径",
+  "description": "保证金、可冲抵保证金证券市值、融资/融券保证金比例等基础口径。",
+  "formula_ids": [
+    "margin_total",
+    "collateral_value",
+    "long_margin_ratio",
+    "short_margin_ratio",
+    "margin_available"
+  ]
+}

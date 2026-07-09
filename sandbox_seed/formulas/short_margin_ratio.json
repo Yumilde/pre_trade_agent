@@ -1,0 +1,11 @@
+{
+  "formula_id": "short_margin_ratio",
+  "name": "融券保证金比例",
+  "expression": "融券保证金比例 = 保证金 / 融券卖出金额",
+  "variables": {
+    "保证金": "见 formula_id=margin_total",
+    "融券卖出金额": "本次/单笔融券卖出的委托金额"
+  },
+  "unit": "比例（无量纲）",
+  "notes": null
+}

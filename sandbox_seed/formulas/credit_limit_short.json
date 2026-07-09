@@ -1,0 +1,8 @@
+{
+  "formula_id": "credit_limit_short",
+  "name": "融券授信额度上限",
+  "expression": "由公司授信策略给定，无通用计算公式",
+  "variables": {},
+  "unit": "元",
+  "notes": "定义：客户可以融入证券的最大限额。"
+}

@@ -1,0 +1,11 @@
+{
+  "dimension": "计算口径",
+  "description": "用户期望据以试算的计量口径。若问题在该维度命中多个互斥口径，则存在歧义。",
+  "directions": [
+    {"group": "cash", "label": "按可用现金", "keywords": ["可用资金", "现金", "自有资金"]},
+    {"group": "credit", "label": "按授信额度", "keywords": ["授信", "融资额度", "信用额度"]},
+    {"group": "concentration", "label": "按集中度上限", "keywords": ["集中度"]},
+    {"group": "maintenance", "label": "按维保比例", "keywords": ["维保", "担保比例"]}
+  ],
+  "special_handling": null
+}

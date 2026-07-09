@@ -1,0 +1,11 @@
+{
+  "formula_id": "withdrawable_cash",
+  "name": "可取资金",
+  "expression": "可取条件：总资产 − 3 × 总负债 > 0",
+  "variables": {
+    "总资产": "见 formula_id=total_assets",
+    "总负债": "见 formula_id=total_liabilities，含日间已报未成的在途负债"
+  },
+  "unit": "元",
+  "notes": "本条目为可取条件判定，不直接给出可取金额；具体可取金额另按公司资金管理细则限制。"
+}

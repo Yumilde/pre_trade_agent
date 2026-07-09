@@ -1,0 +1,9 @@
+{
+  "rule_id": "collateral_buy",
+  "patterns": ["担保品买入", "自有资金.*买", "现金.*买"],
+  "dimension": "目标动作",
+  "implication": "担保品买入",
+  "confidence": "high",
+  "reasoning": "使用自有可用资金买入证券作为担保品。",
+  "notes": {}
+}

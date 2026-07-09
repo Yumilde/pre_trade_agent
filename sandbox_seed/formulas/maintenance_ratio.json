@@ -1,0 +1,11 @@
+{
+  "formula_id": "maintenance_ratio",
+  "name": "维持担保比例",
+  "expression": "维持担保比例 = 总资产 / 总负债",
+  "variables": {
+    "总资产": "见 formula_id=total_assets，不考虑折算率",
+    "总负债": "见 formula_id=total_liabilities，需包含应付利息及费用"
+  },
+  "unit": "比例（无量纲）",
+  "notes": "信用账户风险阈值核心指标。数据权威性：账户当下态若 MCP 工具直接返回了维持担保比例，且与本式自算值不一致，当下态以 MCP 返回值为权威（差异多因口径：分母是否含应付利息及费用、是否含在途负债，见 total_liabilities）；仅在卖券 / 提取等操作后的推演态，以本式自算为准。超容差或跨 300% 阈值档时须披露差异或触发澄清，详见 system_prompt [Critical] 数据权威性与一致性。"
+}

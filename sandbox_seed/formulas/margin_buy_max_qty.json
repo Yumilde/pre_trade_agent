@@ -1,0 +1,14 @@
+{
+  "formula_id": "margin_buy_max_qty",
+  "name": "融资买入最大数量",
+  "expression": "融资买入最大数量 = min(融资授信可用额度, 保证金可用余额 / 融资保证金比例, 集中度限制上限) / 委托价格",
+  "variables": {
+    "融资授信可用额度": "见 formula_id=credit_available_long",
+    "保证金可用余额": "见 formula_id=margin_available",
+    "融资保证金比例": "见 formula_id=long_margin_ratio",
+    "集中度限制上限": "由 formula_id=concentration_position 反推：单只股票市值上限 = 总资产 × 该证券持仓集中度阈值",
+    "委托价格": "本次拟下单价格（不计费用）"
+  },
+  "unit": "股",
+  "notes": "不计手续费、利息等费用；实际下单需按 lot_size 整数手数化。"
+}

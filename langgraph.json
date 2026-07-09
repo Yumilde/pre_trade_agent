@@ -1,0 +1,8 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "credit_trading_agent": "./agent.py:make_graph"
+  },
+  "env": "./.env",
+  "python_version": "3.11"
+}

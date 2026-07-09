@@ -1,0 +1,12 @@
+{
+  "rule_id": "maintenance_ratio",
+  "patterns": ["维保", "维持担保比例", "担保比例"],
+  "dimension": "计算口径",
+  "implication": "maintenance_ratio",
+  "confidence": "high",
+  "reasoning": "用户在询问维持担保比例口径，公式为：总资产/总负债。",
+  "notes": {
+    "metric": "maintenance_ratio",
+    "formula": "总资产/总负债"
+  }
+}

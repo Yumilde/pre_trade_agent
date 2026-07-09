@@ -1,0 +1,13 @@
+{
+  "rule_id": "withdraw_funds",
+  "patterns": ["提取资金", "取现", "出金", "转出.*资金", "把钱.*取出", "资金.*转出", "转.*出去", "转.*万.*出", "卖.*转.*出"],
+  "dimension": "目标动作",
+  "implication": "分步：先卖券还款（所得直接偿债、现金不变）降低融资负债抬高维持担保比例，再提取；'需归还多少负债'= 使提取后维持担保比例≥300%的最小卖券还款额 X，按 formula_id=min_repay_for_withdraw 计算。若可用现金<提取额，卖券还款不增现金，须再经担保品卖出补足现金缺口 Y=max(0,提取额−可用现金)（formula_id=sell_collateral_for_cash，所得进现金、不还负债、维保不变）；此时'需卖出股票总市值'=X+Y、'需归还负债'=X",
+  "confidence": "high",
+  "reasoning": "信用账户提取资金必须满足维保比例>300%且提取后>=300%。若维保不足，按固化的分步模型处理（见 formula_id=sell_to_repay：卖券还款所得直接偿还融资负债、现金余额不变，不存在'卖出超过负债部分回流现金'）：先卖券还款抬维保，再提取。核心问题'提取 X 需归还多少负债'有唯一确定答案，由闭式 min_repay_for_withdraw 给出最小还款额 X=(3×总负债−总资产+提取额)/2，不得临场自拟现金流模型或对同一数量并列多个数值。另需注意：卖券还款不改变现金，故当可用现金<提取额时，客户拿不到可转出的现金，缺口须经担保品卖出（formula_id=sell_collateral_for_cash，所得进现金、负债与维保均不变）补足 Y=max(0,提取额−可用现金)；问'卖多少股票/还需卖多少才能转出'时答案为卖出总市值 X+Y，问'需归还多少负债'时答案为 X。X、Y 同属一个确定方案的两腿，不构成歧义、禁止据此触发 [CLARIFY]。此处属计算口径/操作机制的行业固化事实，不是用户可选项。不能先存入现金再提取。",
+  "notes": {
+    "typical_workflow": "查询账户与持仓→卖券还款(现金不变)降负债抬维保(X=min_repay_for_withdraw)→若可用现金<提取额再担保品卖出补现金缺口(Y=max(0,提取额−可用现金))→校验可取条件(总资产−3×总负债>0)→提取；需归还负债=X，需卖出股票总市值=X+Y",
+    "fixed_model": "两段独立操作可加总；卖券还款现金不变(抬维保/降负债)，担保品卖出补现金(负债/维保不变)；X 与 Y 闭式分别由 min_repay_for_withdraw 与 sell_collateral_for_cash 给出",
+    "related_formula_ids": ["min_repay_for_withdraw", "sell_collateral_for_cash", "sell_to_repay", "maintenance_ratio", "withdrawable_cash"]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "rule_id": "add_margin",
+  "patterns": ["补仓", "追加保证", "追保"],
+  "dimension": "目标动作",
+  "implication": "追加担保品或部分平仓",
+  "confidence": "high",
+  "reasoning": "维保比例低于预警线/平仓线时的操作。",
+  "notes": {}
+}

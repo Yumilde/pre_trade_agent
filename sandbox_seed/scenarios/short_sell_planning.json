@@ -1,0 +1,13 @@
+{
+  "scenario": "short_sell_planning",
+  "name": "融券卖出试算",
+  "description": "客户在信用账户使用融券卖出证券的容量与上限。",
+  "formula_ids": [
+    "short_sell_max_qty",
+    "short_margin_ratio",
+    "margin_available",
+    "credit_available_short",
+    "concentration_position",
+    "maintenance_ratio"
+  ]
+}

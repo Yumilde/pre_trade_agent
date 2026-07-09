@@ -1,0 +1,12 @@
+{
+  "rule_id": "credit_available",
+  "patterns": ["授信", "额度.*够", "还能.*融", "可用.*额度"],
+  "dimension": "计算口径",
+  "implication": "credit_available",
+  "confidence": "high",
+  "reasoning": "用户在询问授信可用额度口径，公式为：授信上限-已使用负债。",
+  "notes": {
+    "metric": "credit_available",
+    "formula": "授信上限-已使用负债"
+  }
+}
