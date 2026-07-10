@@ -374,7 +374,7 @@ except PermissionError:
 # 沙箱配额管理 —— 账号级硬上限（FIFO 淘汰，跳过活跃中的）
 # ============================================================================
 
-AGENT_SANDBOX_LABELS = {"app": "credit_trading_agent"}  # 仅统计/淘汰带此 label 的沙箱，避免误删账号内其它沙箱
+AGENT_SANDBOX_LABELS = {"app": "pre_trade_agent"}  # 仅统计/淘汰带此 label 的沙箱，避免误删账号内其它沙箱
 DEFAULT_MAX_SANDBOXES = 10
 DEFAULT_ACTIVE_WINDOW_SECONDS = 300  # 最近这么多秒内被本进程访问过的沙箱视为“活跃”，淘汰时跳过
 

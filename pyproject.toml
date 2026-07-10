@@ -1,0 +1,21 @@
+[project]
+name = "pre-trade-agent"
+version = "0.1.0"
+description = "融资融券交易试算 Agent"
+requires-python = ">=3.11"
+dependencies = [
+    "deepagents",
+    "langgraph>=1.1.6",
+    "langgraph-cli[inmem]",
+    "langchain-core",
+    "langchain-openai",
+    "langchain-mcp-adapters",
+    "python-dotenv",
+    "pulp",
+    "daytona-sdk",
+    "mcp",
+    "requests",
+]
+
+[tool.setuptools.packages.find]
+include = ["."]

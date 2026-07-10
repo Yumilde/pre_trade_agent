@@ -210,7 +210,7 @@ def optimize_trading_plan(cash_available: float, credit_available_limit: float, 
             ensure_ascii=False,
         )
 
-    model = pulp.LpProblem("credit_trading_opt", pulp.LpMaximize)
+    model = pulp.LpProblem("pre_trade_opt", pulp.LpMaximize)
     finance_lots: Dict[str, pulp.LpVariable] = {}
     self_lots: Dict[str, pulp.LpVariable] = {}
 
@@ -312,9 +312,9 @@ def optimize_trading_plan(cash_available: float, credit_available_limit: float, 
 
 
 # ---------------------------------------------------------------------------
-# CreditTradingAgent
+# PreTradeAgent
 # ---------------------------------------------------------------------------
-class CreditTradingAgent:
+class PreTradeAgent:
     """封装 agent"""
     def __init__(
         self,
@@ -511,7 +511,7 @@ class CreditTradingAgent:
                 subagents=[prompt_rewriter],
                 middleware=[ExcludeToolsMiddleware(frozenset({"write_todos"}))],
                 debug=os.getenv("DEEPAGENT_DEBUG", "false").lower() == "true",
-                name="credit_trading_agent",
+                name="pre_trade_agent",
             )
             return self.agent
 
@@ -901,10 +901,10 @@ def _load_env_once() -> None:
     _configure_proxy_env()
 
 @lru_cache(maxsize=1)
-def create_agent_from_env() -> CreditTradingAgent:
-    """从环境变量创建 CreditTradingAgent 实例，保证只创建一次"""
+def create_agent_from_env() -> PreTradeAgent:
+    """从环境变量创建 PreTradeAgent 实例，保证只创建一次"""
     _load_env_once()
-    return CreditTradingAgent(
+    return PreTradeAgent(
         model=os.getenv("OPENAI_MODEL", ""),
         base_url=os.getenv("OPENAI_BASE_URL", ""),
         api_key=os.getenv("OPENAI_API_KEY", "no-key-required"),
