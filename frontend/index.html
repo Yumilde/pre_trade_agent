@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易试算 Agent · 测试控制台</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text2: #9ca3b4;
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .title { font-size: 14px; font-weight: 600; }
+  .subtitle { font-size: 11px; color: var(--text2); }
+
+  .status-row { display: flex; align-items: center; gap: 16px; }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); transition: background .3s;
+  }
+  .status-dot.online { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,.4); }
+  .status-text { font-size: 11px; color: var(--text2); }
+  .endpoint { font-size: 10px; color: var(--text2); background: var(--surface2); padding: 4px 8px; border-radius: 4px; }
+
+  /* ── Main Layout ── */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 320px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .sidebar-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text2); margin-bottom: 8px;
+  }
+
+  .scenario-btn {
+    display: block; width: 100%; text-align: left;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--font); font-size: 11px;
+    padding: 10px 12px; border-radius: var(--radius-sm);
+    margin-bottom: 6px; cursor: pointer;
+    transition: all .15s;
+  }
+  .scenario-btn:hover { border-color: var(--accent2); background: #2a2d3a; }
+  .scenario-btn .sc-name { font-weight: 600; margin-bottom: 2px; }
+  .scenario-btn .sc-desc { font-size: 10px; color: var(--text2); }
+
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+
+  /* ── Chat Area ── */
+  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .messages {
+    flex: 1; overflow-y: auto; padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .msg { max-width: 85%; animation: fadeIn .25s ease; }
+  .msg.user { align-self: flex-end; }
+  .msg.assistant { align-self: flex-start; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .msg-bubble {
+    padding: 12px 16px; border-radius: var(--radius);
+    font-size: 12px; line-height: 1.6;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .msg.user .msg-bubble { background: var(--accent); color: #fff; }
+  .msg.assistant .msg-bubble { background: var(--surface2); border: 1px solid var(--border); }
+
+  .msg-meta { font-size: 10px; color: var(--text2); margin-top: 4px; }
+  .msg.user .msg-meta { text-align: right; }
+
+  /* JSON block inside assistant messages */
+  .json-block {
+    background: #1e2130; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px;
+    margin-top: 8px; font-size: 11px; line-height: 1.5;
+    overflow-x: auto; max-height: 400px; overflow-y: auto;
+  }
+  .json-key { color: #a78bfa; }
+  .json-str { color: #34d399; }
+  .json-num { color: #fbbf24; }
+  .json-bool { color: #f472b6; }
+
+  /* typing indicator */
+  .typing { display: flex; align-items: center; gap: 4px; padding: 14px 18px; }
+  .typing span {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--text2);
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .typing span:nth-child(1) { animation-delay: -.32s; }
+  .typing span:nth-child(2) { animation-delay: -.16s; }
+  @keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+  /* ── Input ── */
+  .input-area {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .input-row { display: flex; gap: 10px; }
+  .input-field {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    padding: 12px 16px;
+    resize: none;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .input-field:focus { border-color: var(--accent2); }
+  .input-field::placeholder { color: #4b5263; }
+
+  .btn {
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius);
+    padding: 0 20px; font-family: var(--font); font-size: 12px;
+    font-weight: 600; cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent2); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-sm { padding: 6px 12px; font-size: 10px; }
+
+  .input-hint {
+    font-size: 10px; color: var(--text2); margin-top: 8px;
+    display: flex; gap: 12px; align-items: center;
+  }
+  .input-hint kbd {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 3px; font-family: var(--font);
+    font-size: 9px;
+  }
+
+  /* ── Thread Bar ── */
+  .thread-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .thread-id {
+    color: var(--text2); font-size: 10px;
+    background: var(--surface2); padding: 3px 8px; border-radius: 4px;
+    max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">📊</div>
+    <div>
+      <div class="title">交易试算 Agent · 测试控制台</div>
+      <div class="subtitle">融资融券 Pre-Trade Agent — LangGraph API</div>
+    </div>
+  </div>
+  <div class="status-row">
+    <span class="endpoint" id="apiEndpoint">http://localhost:8123</span>
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-text" id="statusText">检测中…</span>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">⚡ 快速测试场景</div>
+      <div id="scenarioList"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">🔧 操作</div>
+      <button class="btn btn-ghost btn-sm" onclick="clearChat()" style="width:100%;margin-bottom:6px;">🗑 清空对话</button>
+      <button class="btn btn-ghost btn-sm" onclick="newThread()" style="width:100%;">🔄 新建 Thread</button>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-label">📋 API 信息</div>
+      <div style="font-size:10px;color:var(--text2);line-height:1.8;" id="apiInfo">
+        <div>Graph: pre_trade_agent</div>
+        <div>Assistant: 检测中…</div>
+        <div>Stream: SSE</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="thread-bar">
+      <span style="color:var(--text2)">🧵 Thread:</span>
+      <span class="thread-id" id="threadIdDisplay">—</span>
+      <button class="btn btn-ghost btn-sm" onclick="copyThreadId()">📋 复制</button>
+    </div>
+    <div class="messages" id="messages">
+      <div style="text-align:center;color:var(--text2);margin-top:40px;font-size:12px;">
+        👋 欢迎使用交易试算 Agent 测试控制台<br><br>
+        <span style="font-size:11px">
+          可以直接提问或从左侧选择测试场景<br>
+          示例：「查询我的信用账户总览」<br>
+          或：「我手上有 50 万现金，想融资买入贵州茅台，能买多少？」
+        </span>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-row">
+        <textarea class="input-field" id="userInput" rows="2"
+          placeholder="输入您的交易试算问题… (Enter 发送, Shift+Enter 换行)"
+          onkeydown="handleKeydown(event)"></textarea>
+        <button class="btn" id="sendBtn" onclick="sendMessage()">发送 ↵</button>
+      </div>
+      <div class="input-hint">
+        <span>Enter 发送</span> <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行
+        <span style="margin-left:auto" id="streamBadge" hidden>⚡ Streaming…</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// Config
+// ═══════════════════════════════════════════════════════════════
+const API_BASE = 'http://localhost:8123';
+const GRAPH_NAME = 'pre_trade_agent';
+
+let assistantId = null;
+let threadId = null;
+let isStreaming = false;
+
+// ═══════════════════════════════════════════════════════════════
+// Test scenarios
+// ═══════════════════════════════════════════════════════════════
+const SCENARIOS = [
+  { name: '信用账户总览', desc: '查询账户核心指标', prompt: '查询我的信用账户总览，包括总资产、总负债、维持担保比例、可用保证金等。' },
+  { name: '融资买入试算', desc: '计算融资买入容量与上限', prompt: '我手上有 50 万现金，想融资买入贵州茅台（600519），当前股价 1800 元，融资保证金比例 100%。请帮我计算最多能买多少股？' },
+  { name: '融券卖出试算', desc: '计算融券卖出上限', prompt: '我想融券卖出招商银行（600036），当前股价 42 元，融券保证金比例 65%。请帮我计算融券卖出的最大数量。' },
+  { name: '维持担保比例检查', desc: '检查维保比例是否安全', prompt: '我的信用账户当前总资产 200 万，总负债 80 万，请帮我检查维持担保比例是否安全，如果接近警戒线需要怎么处理？' },
+  { name: '集中度检查', desc: '检查持仓集中度合规性', prompt: '我的账户总资产 300 万，持有宁德时代（300750）市值 60 万。请帮我检查持仓集中度是否在合规范围内。' },
+  { name: '可用保证金查询', desc: '查询可用保证金明细', prompt: '查询我的可用保证金余额，以及还能新增多少融资买入额度。' },
+  { name: '融资还款试算', desc: '卖出证券偿还融资', prompt: '我持有通过融资买入的 1000 股平安银行（000001），成本价 15 元，当前价 16.5 元。如果卖出这 1000 股偿还融资，能释放多少额度？' },
+  { name: '可提现现金检查', desc: '检查可提现金额', prompt: '我的信用账户当前有 30 万现金，融资负债 20 万。请帮我计算可以提取多少现金？' },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// Init
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  renderScenarios();
+  await checkHealth();
+  await initAssistant();
+  await newThread();
+}
+
+function renderScenarios() {
+  const list = document.getElementById('scenarioList');
+  list.innerHTML = SCENARIOS.map((s, i) => `
+    <button class="scenario-btn" onclick="runScenario(${i})">
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-desc">${s.desc}</div>
+    </button>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API: Health check
+// ═══════════════════════════════════════════════════════════════
+async function checkHealth() {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  try {
+    const res = await fetch(`${API_BASE}/info`, { signal: AbortSignal.timeout(3000) });
+    if (res.ok) {
+      dot.classList.add('online');
+      text.textContent = '已连接';
+    } else {
+      throw new Error(`HTTP ${res.status}`);
+    }
+  } catch (e) {
+    dot.classList.remove('online');
+    text.textContent = `未连接 (${e.message})`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API: Find assistant
+// ═══════════════════════════════════════════════════════════════
+async function initAssistant() {
+  try {
+    // Try the assistants/search endpoint
+    const res = await fetch(`${API_BASE}/assistants/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const found = Array.isArray(data)
+        ? data.find(a => a.graph_id === GRAPH_NAME || a.assistant_id === GRAPH_NAME)
+        : null;
+      if (found) {
+        assistantId = found.assistant_id;
+      }
+    }
+  } catch (e) {
+    console.warn('assistants/search failed, trying fallback', e.message);
+  }
+
+  // Fallback: try direct GET /assistants
+  if (!assistantId) {
+    try {
+      const res = await fetch(`${API_BASE}/assistants`, { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        const data = await res.json();
+        const found = Array.isArray(data)
+          ? data.find(a => a.graph_id === GRAPH_NAME || a.assistant_id === GRAPH_NAME)
+          : null;
+        if (found) assistantId = found.assistant_id;
+      }
+    } catch (e) {
+      console.warn('GET /assistants failed', e.message);
+    }
+  }
+
+  // Last fallback: use graph name as assistant_id
+  if (!assistantId) {
+    console.warn('Using graph name as assistant_id fallback');
+    assistantId = GRAPH_NAME;
+  }
+
+  document.getElementById('apiInfo').innerHTML = `
+    <div>Graph: <strong>${GRAPH_NAME}</strong></div>
+    <div>Assistant: <strong>${assistantId}</strong></div>
+    <div>Stream: <strong>SSE</strong></div>
+    <div>API: <strong>${API_BASE}</strong></div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API: Create thread
+// ═══════════════════════════════════════════════════════════════
+async function newThread() {
+  try {
+    const res = await fetch(`${API_BASE}/threads`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      threadId = data.thread_id;
+    } else {
+      // Fallback: generate local thread ID
+      threadId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      console.warn('Using local thread ID fallback');
+    }
+  } catch (e) {
+    threadId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    console.warn('Thread creation failed, using local ID', e.message);
+  }
+  document.getElementById('threadIdDisplay').textContent = threadId;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Run scenario
+// ═══════════════════════════════════════════════════════════════
+function runScenario(index) {
+  const s = SCENARIOS[index];
+  document.getElementById('userInput').value = s.prompt;
+  sendMessage();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Send message
+// ═══════════════════════════════════════════════════════════════
+async function sendMessage() {
+  if (isStreaming) return;
+
+  const input = document.getElementById('userInput');
+  const question = input.value.trim();
+  if (!question) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+
+  if (!threadId) await newThread();
+
+  // Render user message
+  appendMessage('user', question);
+  setStreaming(true);
+
+  // Create assistant placeholder
+  const assistantEl = appendMessage('assistant', '', true);
+  const bubble = assistantEl.querySelector('.msg-bubble');
+
+  try {
+    await streamRun(question, bubble);
+  } catch (e) {
+    bubble.innerHTML = `<span style="color:var(--red)">❌ 请求失败: ${escapeHtml(e.message)}</span>`;
+  } finally {
+    setStreaming(false);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Stream run with SSE
+// ═══════════════════════════════════════════════════════════════
+async function streamRun(question, bubble) {
+  const url = `${API_BASE}/threads/${threadId}/runs/stream`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      assistant_id: assistantId,
+      input: {
+        messages: [{ role: 'user', content: question }],
+      },
+      stream_mode: ['messages', 'updates'],
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => 'Unknown error');
+    throw new Error(`HTTP ${res.status}: ${errText}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullContent = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const payload = line.slice(6).trim();
+      if (!payload || payload === '[DONE]') continue;
+
+      try {
+        const event = JSON.parse(payload);
+
+        // Extract text content from various event shapes
+        const text = extractText(event);
+        if (text) {
+          fullContent += text;
+        }
+      } catch (e) {
+        // ignore parse errors for malformed events
+      }
+    }
+
+    // Render progressively (debounced visually)
+    bubble.innerHTML = formatContent(fullContent || '⏳ 思考中…');
+    scrollToBottom();
+  }
+
+  // Final render
+  if (!fullContent) fullContent = '（Agent 未返回文本内容，请检查控制台）';
+  bubble.innerHTML = formatContent(fullContent);
+  scrollToBottom();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Extract text from LangGraph SSE events
+// ═══════════════════════════════════════════════════════════════
+function extractText(event) {
+  // Shape 1: { type: "messages", data: [...] }
+  // Shape 2: { type: "updates", data: { messages: [...] } }
+  // Shape 3: direct { event, data: { chunk: { content: "..." } } }
+
+  const data = event.data || event;
+
+  // Array of messages
+  if (Array.isArray(data)) {
+    return data.map(m => messageContent(m)).filter(Boolean).join('');
+  }
+
+  // Single message object
+  if (data.content) return messageContent(data);
+  if (data.messages) {
+    const msgs = Array.isArray(data.messages) ? data.messages : [data.messages];
+    return msgs.map(m => messageContent(m)).filter(Boolean).join('');
+  }
+
+  // Chunk format
+  if (data.chunk) {
+    if (typeof data.chunk === 'string') return data.chunk;
+    if (data.chunk.content) return messageContent(data.chunk);
+  }
+
+  // Nested updates
+  for (const key of ['messages', 'output', 'agent', GRAPH_NAME]) {
+    if (data[key] && data[key].messages) {
+      const msgs = Array.isArray(data[key].messages) ? data[key].messages : [data[key].messages];
+      return msgs.map(m => messageContent(m)).filter(Boolean).join('');
+    }
+  }
+
+  return null;
+}
+
+function messageContent(msg) {
+  if (typeof msg === 'string') return msg;
+  if (!msg) return null;
+
+  const content = msg.content;
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .map(part => {
+        if (typeof part === 'string') return part;
+        if (part && part.type === 'text') return part.text || '';
+        if (part && part.text) return part.text;
+        return '';
+      })
+      .join('');
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Content formatting (auto-detect JSON blocks)
+// ═══════════════════════════════════════════════════════════════
+function formatContent(text) {
+  if (!text) return '';
+
+  // Auto-detect and format JSON blocks
+  let html = escapeHtml(text);
+
+  // Find JSON objects/arrays and highlight them
+  html = html.replace(/(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})/g, (match) => {
+    try {
+      const parsed = JSON.parse(match);
+      return '<div class="json-block">' + jsonToHtml(parsed) + '</div>';
+    } catch {
+      return match;
+    }
+  });
+
+  // Also try to find larger JSON blocks
+  html = html.replace(/(\{[\s\S]*?\}|\[[\s\S]*?\])/g, (match) => {
+    // skip short matches that might just be inline
+    if (match.length < 20) return match;
+    try {
+      const parsed = JSON.parse(match);
+      return '<div class="json-block">' + jsonToHtml(parsed) + '</div>';
+    } catch {
+      return match;
+    }
+  });
+
+  // Highlight key patterns
+  html = html.replace(/\[CLARIFY\]/g, '<span style="color:var(--amber);font-weight:600">[CLARIFY]</span>');
+  html = html.replace(/\[STOP\]/g, '<span style="color:var(--red);font-weight:600">[STOP]</span>');
+
+  return html;
+}
+
+function jsonToHtml(obj, indent = 0) {
+  if (obj === null) return '<span class="json-bool">null</span>';
+  if (typeof obj === 'boolean') return `<span class="json-bool">${obj}</span>`;
+  if (typeof obj === 'number') return `<span class="json-num">${obj}</span>`;
+  if (typeof obj === 'string') return `<span class="json-str">"${escapeHtml(obj)}"</span>`;
+
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return '<span class="json-key">[]</span>';
+    const items = obj.map((v, i) => {
+      const comma = i < obj.length - 1 ? ',' : '';
+      return `<div style="margin-left:${(indent + 1) * 16}px">${jsonToHtml(v, indent + 1)}${comma}</div>`;
+    });
+    return `<span class="json-key">[</span>\n${items.join('\n')}\n<span class="json-key">]</span>`;
+  }
+
+  const keys = Object.keys(obj);
+  if (keys.length === 0) return '<span class="json-key">{}</span>';
+
+  const pairs = keys.map((k, i) => {
+    const comma = i < keys.length - 1 ? ',' : '';
+    return `<div style="margin-left:${(indent + 1) * 16}px"><span class="json-key">"${escapeHtml(k)}"</span>: ${jsonToHtml(obj[k], indent + 1)}${comma}</div>`;
+  });
+
+  return `<span class="json-key">{</span>\n${pairs.join('\n')}\n<span class="json-key">}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI helpers
+// ═══════════════════════════════════════════════════════════════
+function appendMessage(role, content, isStreamingPlaceholder) {
+  const container = document.getElementById('messages');
+
+  // Remove placeholder if exists
+  const placeholder = container.querySelector('.placeholder');
+  if (placeholder) placeholder.remove();
+
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  if (isStreamingPlaceholder) {
+    div.innerHTML = `
+      <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>
+      <div class="msg-meta">${role === 'user' ? '你' : 'Agent'} · ${time}</div>
+    `;
+  } else {
+    div.innerHTML = `
+      <div class="msg-bubble">${formatContent(content)}</div>
+      <div class="msg-meta">${role === 'user' ? '你' : 'Agent'} · ${time}</div>
+    `;
+  }
+
+  container.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function scrollToBottom() {
+  const container = document.getElementById('messages');
+  requestAnimationFrame(() => {
+    container.scrollTop = container.scrollHeight;
+  });
+}
+
+function setStreaming(active) {
+  isStreaming = active;
+  document.getElementById('sendBtn').disabled = active;
+  document.getElementById('streamBadge').hidden = !active;
+}
+
+function clearChat() {
+  document.getElementById('messages').innerHTML = `
+    <div class="placeholder" style="text-align:center;color:var(--text2);margin-top:40px;font-size:12px;">
+      🧹 对话已清空<br><br>
+      <span style="font-size:11px">输入问题开始新的试算</span>
+    </div>
+  `;
+  newThread();
+}
+
+function copyThreadId() {
+  if (threadId) {
+    navigator.clipboard.writeText(threadId).then(() => {
+      const el = document.getElementById('threadIdDisplay');
+      const orig = el.textContent;
+      el.textContent = '✅ 已复制!';
+      setTimeout(() => { el.textContent = orig; }, 1500);
+    });
+  }
+}
+
+function handleKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function escapeHtml(str) {
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return str.replace(/[&<>"']/g, c => map[c]);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Boot
+// ═══════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
