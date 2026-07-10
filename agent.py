@@ -409,7 +409,7 @@ class PreTradeAgent:
             )
 
             # 加载 MCP 工具
-            mcp_client = MultiServerMCPClient(self._mcp_connections(), tool_name_prefix=True)
+            mcp_client = MultiServerMCPClient(self._mcp_connections(), tool_name_prefix=False)
             timeout = float(os.getenv("MCP_TOOLS_TIMEOUT_SECONDS", "15"))  # 防止 MCP 端点宕机时 LangGraph Studio 无限等待
             mcp_required = os.getenv("MCP_REQUIRED", "false").lower() == "true"
             try:

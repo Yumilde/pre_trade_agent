@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>交易试算 Agent · 测试控制台</title>
+<title>Pre-Trade Agent</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #242836;
-    --border: #2e3345;
-    --text: #e1e4ed;
-    --text2: #9ca3b4;
-    --accent: #6366f1;
-    --accent2: #818cf8;
-    --green: #22c55e;
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --blue: #3b82f6;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    --bg: #0a0a0a;
+    --surface: #0f0f0f;
+    --surface2: #161616;
+    --border: #2a2a2a;
+    --border-light: #333;
+    --text: #f0f0f0;
+    --text2: #888;
+    --text3: #555;
+    --accent: #B2FF00;
+    --accent-dim: rgba(178,255,0,0.15);
+    --accent-glow: rgba(178,255,0,0.3);
+    --radius: 2px;
+    --font: 'Helvetica Neue', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+    --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,217 +33,503 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0.01em;
   }
 
   /* ── Header ── */
   .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 20px;
+    padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
   }
-  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-left { display: flex; align-items: baseline; gap: 24px; }
   .logo {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--accent), #a855f7);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    position: relative;
   }
-  .title { font-size: 14px; font-weight: 600; }
-  .subtitle { font-size: 11px; color: var(--text2); }
+  .logo::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+  }
+  .title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
-  .status-row { display: flex; align-items: center; gap: 16px; }
+  .status-row { display: flex; align-items: center; gap: 14px; }
   .status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--red); transition: background .3s;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text3); transition: all var(--transition);
   }
-  .status-dot.online { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,.4); }
-  .status-text { font-size: 11px; color: var(--text2); }
-  .endpoint { font-size: 10px; color: var(--text2); background: var(--surface2); padding: 4px 8px; border-radius: 4px; }
+  .status-dot.online {
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .status-text {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .endpoint {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+  }
 
   /* ── Main Layout ── */
   .main { display: flex; flex: 1; overflow: hidden; }
 
   /* ── Sidebar ── */
   .sidebar {
-    width: 320px; flex-shrink: 0;
+    width: 300px; flex-shrink: 0;
     background: var(--surface);
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
   }
-  .sidebar-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-section {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
   .sidebar-label {
-    font-size: 10px; text-transform: uppercase; letter-spacing: .1em;
-    color: var(--text2); margin-bottom: 8px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    margin-bottom: 12px;
   }
 
   .scenario-btn {
     display: block; width: 100%; text-align: left;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); font-family: var(--font); font-size: 11px;
-    padding: 10px 12px; border-radius: var(--radius-sm);
-    margin-bottom: 6px; cursor: pointer;
-    transition: all .15s;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: all var(--transition);
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid var(--border);
   }
-  .scenario-btn:hover { border-color: var(--accent2); background: #2a2d3a; }
-  .scenario-btn .sc-name { font-weight: 600; margin-bottom: 2px; }
-  .scenario-btn .sc-desc { font-size: 10px; color: var(--text2); }
+  .scenario-btn:last-child { border-bottom: none; }
+  .scenario-btn:hover {
+    color: var(--text);
+    padding-left: 4px;
+  }
+  .scenario-btn .sc-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 3px;
+    color: var(--text);
+  }
+  .scenario-btn .sc-desc {
+    font-size: 11px;
+    color: var(--text3);
+    transition: color var(--transition);
+  }
+  .scenario-btn:hover .sc-desc { color: var(--text2); }
 
-  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 0 16px 16px; }
+  .sidebar-scroll { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
   /* ── Chat Area ── */
-  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-  .messages {
-    flex: 1; overflow-y: auto; padding: 20px 24px;
-    display: flex; flex-direction: column; gap: 16px;
+  .chat-area {
+    flex: 1; display: flex; flex-direction: column;
+    background: var(--bg);
+    overflow: hidden;
   }
 
-  .msg { max-width: 85%; animation: fadeIn .25s ease; }
+  .messages {
+    flex: 1; overflow-y: auto;
+    padding: 40px 48px;
+    display: flex; flex-direction: column;
+    gap: 28px;
+    scroll-behavior: smooth;
+  }
+
+  .msg { max-width: 72%; animation: fadeUp 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
   .msg.user { align-self: flex-end; }
   .msg.assistant { align-self: flex-start; }
 
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   .msg-bubble {
-    padding: 12px 16px; border-radius: var(--radius);
-    font-size: 12px; line-height: 1.6;
-    white-space: pre-wrap; word-break: break-word;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
   }
-  .msg.user .msg-bubble { background: var(--accent); color: #fff; }
-  .msg.assistant .msg-bubble { background: var(--surface2); border: 1px solid var(--border); }
+  .msg.user .msg-bubble {
+    background: var(--accent-dim);
+    border: 1px solid rgba(178,255,0,0.12);
+    padding: 14px 20px;
+    border-radius: 2px;
+    color: var(--text);
+  }
+  .msg.assistant .msg-bubble {
+    padding: 0;
+    border-radius: 0;
+  }
 
-  .msg-meta { font-size: 10px; color: var(--text2); margin-top: 4px; }
+  .msg-meta {
+    font-size: 9px;
+    color: var(--text3);
+    margin-top: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
   .msg.user .msg-meta { text-align: right; }
+  .msg.assistant .msg-meta { padding-left: 2px; }
 
-  /* JSON block inside assistant messages */
+  /* ── Markdown inside assistant ── */
+  .msg.assistant .msg-bubble h1,
+  .msg.assistant .msg-bubble h2,
+  .msg.assistant .msg-bubble h3,
+  .msg.assistant .msg-bubble h4 {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+
+  .msg.assistant .msg-bubble strong { color: #fff; font-weight: 600; }
+  .msg.assistant .msg-bubble a { color: var(--accent); text-decoration: none; }
+  .msg.assistant .msg-bubble a:hover { text-decoration: underline; }
+  .msg.assistant .msg-bubble code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+  .msg.assistant .msg-bubble pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    margin: 12px 0;
+  }
+  .msg.assistant .msg-bubble pre code {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .msg.assistant .msg-bubble blockquote {
+    border-left: 2px solid var(--accent);
+    color: var(--text2);
+    padding-left: 16px;
+    margin: 12px 0;
+    font-style: italic;
+  }
+  .msg.assistant .msg-bubble table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .msg.assistant .msg-bubble th,
+  .msg.assistant .msg-bubble td {
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+  }
+  .msg.assistant .msg-bubble th {
+    color: var(--text3);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .msg.assistant .msg-bubble ul,
+  .msg.assistant .msg-bubble ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+  .msg.assistant .msg-bubble li {
+    margin: 4px 0;
+    line-height: 1.6;
+  }
+  .msg.assistant .msg-bubble hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  /* JSON block */
   .json-block {
-    background: #1e2130; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); padding: 12px;
-    margin-top: 8px; font-size: 11px; line-height: 1.5;
-    overflow-x: auto; max-height: 400px; overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 16px;
+    margin: 12px 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
   }
   .json-key { color: #a78bfa; }
-  .json-str { color: #34d399; }
+  .json-str { color: #6ee7b7; }
   .json-num { color: #fbbf24; }
   .json-bool { color: #f472b6; }
 
+  /* Tool accordion */
+  .tool-section {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  .tool-section-label {
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .tool-section details {
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+  .tool-section summary {
+    cursor: pointer;
+    color: var(--text2);
+    padding: 8px 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    transition: color var(--transition);
+    list-style: none;
+  }
+  .tool-section summary::-webkit-details-marker { display: none; }
+  .tool-section summary::before {
+    content: '+ ';
+    color: var(--accent);
+    font-weight: 600;
+    display: inline-block;
+    width: 14px;
+  }
+  .tool-section details[open] summary::before { content: '− '; }
+  .tool-section summary:hover { color: var(--text); }
+  .tool-section .tool-body {
+    padding: 12px 16px;
+    margin: 4px 0 10px;
+    background: var(--surface);
+    border-left: 2px solid var(--border-light);
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .tool-section .tool-body .tool-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .tool-section .tool-body pre {
+    margin: 0;
+    white-space: pre-wrap;
+    color: var(--text2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
   /* typing indicator */
-  .typing { display: flex; align-items: center; gap: 4px; padding: 14px 18px; }
+  .typing {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 0;
+  }
   .typing span {
-    width: 6px; height: 6px; border-radius: 50%; background: var(--text2);
-    animation: bounce 1.4s infinite ease-in-out both;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text3);
+    animation: pulse 1.4s infinite ease-in-out both;
   }
   .typing span:nth-child(1) { animation-delay: -.32s; }
   .typing span:nth-child(2) { animation-delay: -.16s; }
-  @keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
 
   /* ── Input ── */
   .input-area {
-    padding: 16px 20px;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
+    padding: 24px 48px 32px;
     flex-shrink: 0;
   }
-  .input-row { display: flex; gap: 10px; }
+  .input-row { display: flex; gap: 12px; align-items: flex-end; }
   .input-field {
     flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
     color: var(--text);
     font-family: var(--font);
-    font-size: 13px;
-    padding: 12px 16px;
+    font-size: 15px;
+    padding: 12px 0;
     resize: none;
     outline: none;
-    transition: border-color .2s;
+    transition: border-color var(--transition);
+    letter-spacing: 0.02em;
+    line-height: 1.5;
   }
-  .input-field:focus { border-color: var(--accent2); }
-  .input-field::placeholder { color: #4b5263; }
+  .input-field:focus { border-color: var(--accent); }
+  .input-field::placeholder { color: var(--text3); }
 
   .btn {
-    background: var(--accent); color: #fff;
-    border: none; border-radius: var(--radius);
-    padding: 0 20px; font-family: var(--font); font-size: 12px;
-    font-weight: 600; cursor: pointer;
-    transition: all .15s;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 10px 28px;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all var(--transition);
     white-space: nowrap;
   }
-  .btn:hover { background: var(--accent2); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-ghost {
-    background: transparent; border: 1px solid var(--border);
-    color: var(--text2);
+  .btn:hover {
+    background: var(--accent);
+    color: #0a0a0a;
   }
-  .btn-ghost:hover { border-color: var(--accent2); color: var(--text); }
-  .btn-sm { padding: 6px 12px; font-size: 10px; }
+  .btn:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    background: transparent;
+    color: var(--accent);
+  }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text3);
+    padding: 8px 16px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  .btn-ghost:hover {
+    border-color: var(--text2);
+    color: var(--text);
+    background: transparent;
+  }
 
   .input-hint {
-    font-size: 10px; color: var(--text2); margin-top: 8px;
-    display: flex; gap: 12px; align-items: center;
+    font-size: 9px;
+    color: var(--text3);
+    margin-top: 12px;
+    display: flex; gap: 16px; align-items: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
   .input-hint kbd {
-    background: var(--surface2); border: 1px solid var(--border);
-    padding: 1px 5px; border-radius: 3px; font-family: var(--font);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
     font-size: 9px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  #streamBadge {
+    color: var(--accent);
+    animation: pulse 1.5s infinite;
   }
 
   /* ── Thread Bar ── */
   .thread-bar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 20px;
-    background: var(--surface);
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 48px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    font-size: 11px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--text3);
   }
   .thread-id {
-    color: var(--text2); font-size: 10px;
-    background: var(--surface2); padding: 3px 8px; border-radius: 4px;
-    max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--text3);
+    font-size: 10px;
+    font-family: var(--font-mono);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+  /* welcome placeholder */
+  .welcome {
+    text-align: center;
+    margin-top: 80px;
+  }
+  .welcome-line {
+    font-size: 13px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    line-height: 2;
+  }
+  .welcome-line span {
+    color: var(--text2);
   }
 </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
+<!-- Header -->
 <div class="header">
   <div class="header-left">
-    <div class="logo">📊</div>
+    <div class="logo">Pre-Trade</div>
     <div>
-      <div class="title">交易试算 Agent · 测试控制台</div>
-      <div class="subtitle">融资融券 Pre-Trade Agent — LangGraph API</div>
+      <div class="title">交易试算 Agent</div>
+      <div class="subtitle">Margin Trading — Simulation Console</div>
     </div>
   </div>
   <div class="status-row">
-    <span class="endpoint" id="apiEndpoint">http://localhost:8123</span>
+    <span class="endpoint" id="apiEndpoint">localhost:8123</span>
     <div class="status-dot" id="statusDot"></div>
     <span class="status-text" id="statusText">检测中…</span>
   </div>
 </div>
 
-<!-- ── Main ── -->
+<!-- Main -->
 <div class="main">
 
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">⚡ 快速测试场景</div>
+      <div class="sidebar-label">快速测试</div>
       <div id="scenarioList"></div>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-label">🔧 操作</div>
-      <button class="btn btn-ghost btn-sm" onclick="clearChat()" style="width:100%;margin-bottom:6px;">🗑 清空对话</button>
-      <button class="btn btn-ghost btn-sm" onclick="newThread()" style="width:100%;">🔄 新建 Thread</button>
+      <button class="btn btn-ghost" onclick="clearChat()" style="width:100%;margin-bottom:6px;">清空对话</button>
+      <button class="btn btn-ghost" onclick="newThread()" style="width:100%;">新建 Thread</button>
     </div>
     <div class="sidebar-scroll">
-      <div class="sidebar-label">📋 API 信息</div>
-      <div style="font-size:10px;color:var(--text2);line-height:1.8;" id="apiInfo">
+      <div class="sidebar-label">API 信息</div>
+      <div style="font-size:11px;color:var(--text3);line-height:2;letter-spacing:0.03em;" id="apiInfo">
         <div>Graph: pre_trade_agent</div>
         <div>Assistant: 检测中…</div>
         <div>Stream: SSE</div>
@@ -254,30 +540,31 @@
   <!-- Chat -->
   <div class="chat-area">
     <div class="thread-bar">
-      <span style="color:var(--text2)">🧵 Thread:</span>
+      <span>THREAD</span>
       <span class="thread-id" id="threadIdDisplay">—</span>
-      <button class="btn btn-ghost btn-sm" onclick="copyThreadId()">📋 复制</button>
+      <button class="btn btn-ghost" onclick="copyThreadId()" style="font-size:9px;padding:4px 10px;">复制</button>
     </div>
     <div class="messages" id="messages">
-      <div style="text-align:center;color:var(--text2);margin-top:40px;font-size:12px;">
-        👋 欢迎使用交易试算 Agent 测试控制台<br><br>
-        <span style="font-size:11px">
-          可以直接提问或从左侧选择测试场景<br>
+      <div class="welcome" id="welcomeMsg">
+        <div class="welcome-line">
+          <span>PRE-TRADE AGENT</span><br>
+          融资融券交易试算<br><br>
+          直接输入问题或从左侧选择测试场景<br>
           示例：「查询我的信用账户总览」<br>
-          或：「我手上有 50 万现金，想融资买入贵州茅台，能买多少？」
-        </span>
+          「50 万现金，融资买入贵州茅台，能买多少？」
+        </div>
       </div>
     </div>
     <div class="input-area">
       <div class="input-row">
-        <textarea class="input-field" id="userInput" rows="2"
-          placeholder="输入您的交易试算问题… (Enter 发送, Shift+Enter 换行)"
+        <textarea class="input-field" id="userInput" rows="1"
+          placeholder="输入交易试算问题…"
           onkeydown="handleKeydown(event)"></textarea>
-        <button class="btn" id="sendBtn" onclick="sendMessage()">发送 ↵</button>
+        <button class="btn" id="sendBtn" onclick="sendMessage()">发送</button>
       </div>
       <div class="input-hint">
-        <span>Enter 发送</span> <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行
-        <span style="margin-left:auto" id="streamBadge" hidden>⚡ Streaming…</span>
+        <span>Enter 发送</span> <kbd>Shift</kbd> + <kbd>Enter</kbd> 换行
+        <span style="margin-left:auto" id="streamBadge" hidden>STREAMING</span>
       </div>
     </div>
   </div>
@@ -354,7 +641,6 @@ async function checkHealth() {
 // ═══════════════════════════════════════════════════════════════
 async function initAssistant() {
   try {
-    // Try the assistants/search endpoint
     const res = await fetch(`${API_BASE}/assistants/search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -374,7 +660,6 @@ async function initAssistant() {
     console.warn('assistants/search failed, trying fallback', e.message);
   }
 
-  // Fallback: try direct GET /assistants
   if (!assistantId) {
     try {
       const res = await fetch(`${API_BASE}/assistants`, { signal: AbortSignal.timeout(3000) });
@@ -390,7 +675,6 @@ async function initAssistant() {
     }
   }
 
-  // Last fallback: use graph name as assistant_id
   if (!assistantId) {
     console.warn('Using graph name as assistant_id fallback');
     assistantId = GRAPH_NAME;
@@ -419,7 +703,6 @@ async function newThread() {
       const data = await res.json();
       threadId = data.thread_id;
     } else {
-      // Fallback: generate local thread ID
       threadId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       console.warn('Using local thread ID fallback');
     }
@@ -454,18 +737,16 @@ async function sendMessage() {
 
   if (!threadId) await newThread();
 
-  // Render user message
   appendMessage('user', question);
   setStreaming(true);
 
-  // Create assistant placeholder
   const assistantEl = appendMessage('assistant', '', true);
   const bubble = assistantEl.querySelector('.msg-bubble');
 
   try {
     await streamRun(question, bubble);
   } catch (e) {
-    bubble.innerHTML = `<span style="color:var(--red)">❌ 请求失败: ${escapeHtml(e.message)}</span>`;
+    bubble.innerHTML = `<span style="color:#ef4444">❌ 请求失败: ${escapeHtml(e.message)}</span>`;
   } finally {
     setStreaming(false);
   }
@@ -497,7 +778,12 @@ async function streamRun(question, bubble) {
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
-  let fullContent = '';
+  let fullContent = '';        // progressive display from "messages" deltas
+  let authoritativeText = '';  // latest AI answer from "updates" full state
+  let toolInteractions = [];   // {type:'call'|'result', name, args, id, result, resultName}
+
+  let streamError = null;
+  let currentEventType = '';  // persisted across reads (SSE events may span chunk boundaries)
 
   while (true) {
     const { done, value } = await reader.read();
@@ -508,31 +794,83 @@ async function streamRun(question, bubble) {
     buffer = lines.pop() || '';
 
     for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        currentEventType = line.slice(7).trim();
+        continue;
+      }
+
       if (!line.startsWith('data: ')) continue;
       const payload = line.slice(6).trim();
       if (!payload || payload === '[DONE]') continue;
 
       try {
-        const event = JSON.parse(payload);
+        const parsed = JSON.parse(payload);
 
-        // Extract text content from various event shapes
-        const text = extractText(event);
-        if (text) {
-          fullContent += text;
+        if (currentEventType.startsWith('error')) {
+          streamError = (parsed.error || 'Error') + ': ' + (parsed.message || 'Unknown error');
+          console.error('[SSE Error]', parsed);
+          break;
+        }
+
+        if (parsed && parsed.error && !parsed.messages && !parsed.content && !Array.isArray(parsed)) {
+          streamError = parsed.error + ': ' + (parsed.message || 'Unknown error');
+          console.error('[SSE Inline Error]', parsed);
+          break;
+        }
+
+        const text = extractText(parsed);
+        const tools = extractToolMessages(parsed);
+
+        for (const t of tools) {
+          if (t.type === 'call') {
+            toolInteractions.push(t);
+          } else if (t.type === 'result') {
+            const call = toolInteractions.find(c => c.type === 'call' && c.id === t.id);
+            if (call) {
+              call.result = t.content;
+              call.resultName = t.name;
+            } else {
+              toolInteractions.push(t);
+            }
+          }
+        }
+
+        if (!text) continue;
+
+        if (currentEventType.startsWith('updates')) {
+          authoritativeText = text;
+        } else if (currentEventType.startsWith('messages')) {
+          if (fullContent && text.startsWith(fullContent) && text.length > fullContent.length) {
+            fullContent = text;
+          } else if (!fullContent || !text.startsWith(fullContent)) {
+            fullContent += text;
+          }
+        } else {
+          if (!fullContent && !authoritativeText && text) {
+            fullContent = text;
+          }
         }
       } catch (e) {
-        // ignore parse errors for malformed events
+        // ignore parse errors
       }
     }
 
-    // Render progressively (debounced visually)
-    bubble.innerHTML = formatContent(fullContent || '⏳ 思考中…');
+    if (streamError) break;
+
+    const display = fullContent || authoritativeText;
+    bubble.innerHTML = formatContent(display || '<div class="typing"><span></span><span></span><span></span></div>');
     scrollToBottom();
   }
 
-  // Final render
-  if (!fullContent) fullContent = '（Agent 未返回文本内容，请检查控制台）';
-  bubble.innerHTML = formatContent(fullContent);
+  const final = authoritativeText || fullContent;
+  if (streamError) {
+    bubble.innerHTML = `<span style="color:#ef4444">❌ 服务端错误: ${escapeHtml(streamError)}</span>
+<div style="margin-top:12px;font-size:11px;color:var(--text3);">请检查 .env 中的 OPENAI_MODEL 是否正确</div>`;
+  } else if (!final) {
+    bubble.innerHTML = formatContent('（Agent 未返回文本内容，请检查控制台）');
+  } else {
+    bubble.innerHTML = formatContent(final) + renderToolSections(toolInteractions);
+  }
   scrollToBottom();
 }
 
@@ -540,31 +878,44 @@ async function streamRun(question, bubble) {
 // Extract text from LangGraph SSE events
 // ═══════════════════════════════════════════════════════════════
 function extractText(event) {
-  // Shape 1: { type: "messages", data: [...] }
-  // Shape 2: { type: "updates", data: { messages: [...] } }
-  // Shape 3: direct { event, data: { chunk: { content: "..." } } }
+  if (Array.isArray(event) && event.length === 2 && typeof event[0] === 'string') {
+    const [eventType, eventData] = event;
+
+    if (eventType === 'messages' && Array.isArray(eventData)) {
+      return eventData.map(m => messageContent(m)).filter(Boolean).join('');
+    }
+
+    if (eventType === 'updates' && eventData && typeof eventData === 'object') {
+      for (const nodeName of Object.keys(eventData)) {
+        const nodeOutput = eventData[nodeName];
+        if (nodeOutput && nodeOutput.messages) {
+          const msgs = Array.isArray(nodeOutput.messages) ? nodeOutput.messages : [nodeOutput.messages];
+          const text = msgs.map(m => messageContent(m)).filter(Boolean).join('');
+          if (text) return text;
+        }
+      }
+    }
+
+    return null;
+  }
 
   const data = event.data || event;
 
-  // Array of messages
   if (Array.isArray(data)) {
     return data.map(m => messageContent(m)).filter(Boolean).join('');
   }
 
-  // Single message object
   if (data.content) return messageContent(data);
   if (data.messages) {
     const msgs = Array.isArray(data.messages) ? data.messages : [data.messages];
     return msgs.map(m => messageContent(m)).filter(Boolean).join('');
   }
 
-  // Chunk format
   if (data.chunk) {
     if (typeof data.chunk === 'string') return data.chunk;
     if (data.chunk.content) return messageContent(data.chunk);
   }
 
-  // Nested updates
   for (const key of ['messages', 'output', 'agent', GRAPH_NAME]) {
     if (data[key] && data[key].messages) {
       const msgs = Array.isArray(data[key].messages) ? data[key].messages : [data[key].messages];
@@ -575,7 +926,18 @@ function extractText(event) {
   return null;
 }
 
+function isAIMessage(msg) {
+  if (!msg || typeof msg === 'string') return true;
+  const t = (msg.type || '').toLowerCase();
+  if (t === 'tool' || t === 'toolmessage' || t === 'function' || t === 'human' || t === 'humanmessage' || t === 'system' || t === 'systemmessage') return false;
+  if (t === 'ai' || t === 'aimessage' || t === 'aimessagechunk' || t === 'assistant') return true;
+  if (msg.id && !msg.tool_call_id) return true;
+  if (msg.tool_call_id) return false;
+  return true;
+}
+
 function messageContent(msg) {
+  if (!isAIMessage(msg)) return null;
   if (typeof msg === 'string') return msg;
   if (!msg) return null;
 
@@ -595,28 +957,189 @@ function messageContent(msg) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Content formatting (auto-detect JSON blocks)
+// Extract tool messages for collapsible display
+// ═══════════════════════════════════════════════════════════════
+function isToolMessage(msg) {
+  if (!msg || typeof msg === 'string') return false;
+  const t = (msg.type || '').toLowerCase();
+  if (t === 'tool' || t === 'toolmessage' || t === 'function') return true;
+  if (msg.tool_call_id) return true;
+  return false;
+}
+
+function isToolCall(msg) {
+  if (!msg || typeof msg === 'string') return false;
+  const t = (msg.type || '').toLowerCase();
+  if (t === 'ai' || t === 'aimessage' || t === 'aimessagechunk') {
+    return !!(msg.tool_calls && msg.tool_calls.length > 0);
+  }
+  return false;
+}
+
+function extractToolMessages(event) {
+  const results = [];
+
+  function walkMessages(msgs) {
+    if (!msgs) return;
+    const arr = Array.isArray(msgs) ? msgs : [msgs];
+    for (const msg of arr) {
+      if (isToolCall(msg)) {
+        for (const tc of msg.tool_calls) {
+          results.push({
+            type: 'call',
+            name: tc.name || tc.function?.name || 'unknown',
+            args: tc.args || tc.function?.arguments || {},
+            id: tc.id || '',
+          });
+        }
+      }
+      if (isToolMessage(msg)) {
+        results.push({
+          type: 'result',
+          name: msg.name || '',
+          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+          id: msg.tool_call_id || '',
+        });
+      }
+    }
+  }
+
+  if (Array.isArray(event) && event.length === 2 && typeof event[0] === 'string') {
+    const [eventType, eventData] = event;
+    if (eventType === 'messages' && Array.isArray(eventData)) {
+      walkMessages(eventData);
+    } else if (eventType === 'updates' && eventData && typeof eventData === 'object') {
+      for (const nodeName of Object.keys(eventData)) {
+        const nodeOutput = eventData[nodeName];
+        if (nodeOutput && nodeOutput.messages) walkMessages(nodeOutput.messages);
+      }
+    }
+    return results;
+  }
+
+  const data = event.data || event;
+  if (Array.isArray(data)) {
+    walkMessages(data);
+  } else {
+    if (data.messages) walkMessages(data.messages);
+    for (const key of ['messages', 'output', 'agent', GRAPH_NAME, 'tools', 'model']) {
+      if (data[key] && data[key].messages) walkMessages(data[key].messages);
+    }
+  }
+
+  return results;
+}
+
+function renderToolSections(interactions) {
+  if (!interactions || interactions.length === 0) return '';
+
+  const completed = interactions.filter(t => t.type === 'call' && t.result !== undefined);
+
+  let html = '<div class="tool-section">';
+  html += '<div class="tool-section-label">工具调用 (' + completed.length + ')</div>';
+
+  for (const tool of completed) {
+    const displayName = tool.resultName || tool.name || 'unknown';
+    const argsStr = typeof tool.args === 'object' ? JSON.stringify(tool.args, null, 2) : String(tool.args || '');
+    const resultStr = tool.result || '';
+    const MAX_PREVIEW = 300;
+    const resultPreview = resultStr.length > MAX_PREVIEW
+      ? escapeHtml(resultStr.slice(0, MAX_PREVIEW)) + '…'
+      : escapeHtml(resultStr);
+
+    html += '<details>';
+    html += '<summary>' + escapeHtml(displayName) + '</summary>';
+    html += '<div class="tool-body">';
+    if (argsStr && argsStr !== '{}') {
+      html += '<div class="tool-label" style="color:#fbbf24;">参数</div>';
+      html += '<pre>' + escapeHtml(argsStr) + '</pre>';
+    }
+    html += '<div class="tool-label" style="color:#6ee7b7;">结果</div>';
+    html += '<pre>' + resultPreview + '</pre>';
+    html += '</div>';
+    html += '</details>';
+  }
+
+  html += '</div>';
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Markdown → HTML rendering
 // ═══════════════════════════════════════════════════════════════
 function formatContent(text) {
   if (!text) return '';
 
-  // Auto-detect and format JSON blocks
-  let html = escapeHtml(text);
+  const placeholders = [];
 
-  // Find JSON objects/arrays and highlight them
-  html = html.replace(/(\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\})/g, (match) => {
-    try {
-      const parsed = JSON.parse(match);
-      return '<div class="json-block">' + jsonToHtml(parsed) + '</div>';
-    } catch {
-      return match;
-    }
+  // Step 1: Protect fenced code blocks ```
+  let html = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const idx = placeholders.length;
+    placeholders.push('<pre style="background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:16px;overflow-x:auto;font-size:12px;line-height:1.6;margin:12px 0;font-family:var(--font-mono);"><code>' + escapeHtml(code.trimEnd()) + '</code></pre>');
+    return '%%CODEBLOCK_' + idx + '%%';
   });
 
-  // Also try to find larger JSON blocks
+  // Step 2: Protect inline code `
+  html = html.replace(/`([^`]+)`/g, (_, code) => {
+    const idx = placeholders.length;
+    placeholders.push('<code style="background:var(--surface);padding:1px 5px;border-radius:2px;font-size:0.9em;font-family:var(--font-mono);">' + escapeHtml(code) + '</code>');
+    return '%%INLINECODE_' + idx + '%%';
+  });
+
+  // Step 3: Escape HTML
+  html = escapeHtml(html);
+
+  // Step 4: Horizontal rules
+  html = html.replace(/^---+\s*$/gm, '<hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">');
+
+  // Step 5: Headers
+  html = html.replace(/^#### (.+)$/gm, '<h4 style="font-size:13px;margin:12px 0 4px;font-weight:600;">$1</h4>');
+  html = html.replace(/^### (.+)$/gm, '<h3 style="font-size:14px;margin:14px 0 6px;font-weight:600;">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 style="font-size:16px;margin:18px 0 8px;font-weight:600;border-bottom:1px solid var(--border);padding-bottom:6px;">$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1 style="font-size:18px;margin:20px 0 10px;font-weight:700;border-bottom:1px solid var(--border);padding-bottom:8px;">$1</h1>');
+
+  // Step 6: Bold and italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+
+  // Step 7: Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:var(--accent);text-decoration:none;">$1</a>');
+
+  // Step 8: Table
+  html = html.replace(/<br>\n\|(.+)\|<br>\n\|[-| :]+\|<br>\n((?:\|.+\|<br>\n?)*)/g, (_, header, body) => {
+    const hcols = header.split('|').filter(c => c.trim()).map(c => '<th>' + c.trim() + '</th>').join('');
+    const rows = body.replace(/<br>$/g, '').split('<br>\n').map(row => {
+      const cols = row.split('|').filter(c => c.trim()).map(c => '<td>' + c.trim() + '</td>').join('');
+      return '<tr>' + cols + '</tr>';
+    }).join('');
+    return '<table><thead><tr>' + hcols + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  });
+
+  // Step 9: Lists
+  html = html.replace(/^(\d+)\. (.+)$/gm, '<li value="$1">$2</li>');
+  html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  html = html.replace(/((?:<li[^>]*>.*<\/li>\n?)+)/g, (match) => {
+    if (match.includes('value=')) {
+      return '<ol>\n' + match + '</ol>';
+    }
+    return '<ul>\n' + match + '</ul>';
+  });
+
+  // Step 10: Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Step 11: Line breaks
+  html = html.replace(/\n\n/g, '<br><br>');
+  html = html.replace(/\n/g, '<br>');
+
+  // Step 12: Restore code placeholders
+  html = html.replace(/%%CODEBLOCK_(\d+)%%/g, (_, i) => placeholders[parseInt(i)]);
+  html = html.replace(/%%INLINECODE_(\d+)%%/g, (_, i) => placeholders[parseInt(i)]);
+
+  // Step 13: Auto-detect JSON blocks
   html = html.replace(/(\{[\s\S]*?\}|\[[\s\S]*?\])/g, (match) => {
-    // skip short matches that might just be inline
-    if (match.length < 20) return match;
+    if (match.length < 30) return match;
     try {
       const parsed = JSON.parse(match);
       return '<div class="json-block">' + jsonToHtml(parsed) + '</div>';
@@ -625,9 +1148,9 @@ function formatContent(text) {
     }
   });
 
-  // Highlight key patterns
-  html = html.replace(/\[CLARIFY\]/g, '<span style="color:var(--amber);font-weight:600">[CLARIFY]</span>');
-  html = html.replace(/\[STOP\]/g, '<span style="color:var(--red);font-weight:600">[STOP]</span>');
+  // Step 14: Key patterns
+  html = html.replace(/\[CLARIFY\]/g, '<span style="color:#f59e0b;font-weight:600;">[CLARIFY]</span>');
+  html = html.replace(/\[STOP\]/g, '<span style="color:#ef4444;font-weight:600;">[STOP]</span>');
 
   return html;
 }
@@ -664,19 +1187,19 @@ function jsonToHtml(obj, indent = 0) {
 function appendMessage(role, content, isStreamingPlaceholder) {
   const container = document.getElementById('messages');
 
-  // Remove placeholder if exists
-  const placeholder = container.querySelector('.placeholder');
-  if (placeholder) placeholder.remove();
+  // Remove welcome placeholder
+  const welcome = document.getElementById('welcomeMsg');
+  if (welcome) welcome.remove();
 
   const div = document.createElement('div');
   div.className = `msg ${role}`;
 
-  const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
 
   if (isStreamingPlaceholder) {
     div.innerHTML = `
       <div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>
-      <div class="msg-meta">${role === 'user' ? '你' : 'Agent'} · ${time}</div>
+      <div class="msg-meta">Agent · ${time}</div>
     `;
   } else {
     div.innerHTML = `
@@ -705,9 +1228,14 @@ function setStreaming(active) {
 
 function clearChat() {
   document.getElementById('messages').innerHTML = `
-    <div class="placeholder" style="text-align:center;color:var(--text2);margin-top:40px;font-size:12px;">
-      🧹 对话已清空<br><br>
-      <span style="font-size:11px">输入问题开始新的试算</span>
+    <div class="welcome" id="welcomeMsg">
+      <div class="welcome-line">
+        <span>PRE-TRADE AGENT</span><br>
+        融资融券交易试算<br><br>
+        直接输入问题或从左侧选择测试场景<br>
+        示例：「查询我的信用账户总览」<br>
+        「50 万现金，融资买入贵州茅台，能买多少？」
+      </div>
     </div>
   `;
   newThread();
@@ -718,7 +1246,7 @@ function copyThreadId() {
     navigator.clipboard.writeText(threadId).then(() => {
       const el = document.getElementById('threadIdDisplay');
       const orig = el.textContent;
-      el.textContent = '✅ 已复制!';
+      el.textContent = '已复制';
       setTimeout(() => { el.textContent = orig; }, 1500);
     });
   }
